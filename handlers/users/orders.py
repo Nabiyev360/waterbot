@@ -13,7 +13,7 @@ from states.buyingStates import BuyStates
 async def product_handler(msg: types.Message, state: FSMContext):
     await state.finish()
     client_id = db.get_client_id(msg.from_user.id)
-    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}").json()
+    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}", verify=False).json()
 
     try:
         await msg.answer(text="<b>🧾 Buyurtmalar ro'yxati</b>", reply_markup=order_board(res))
@@ -26,7 +26,7 @@ async def order_detail(call: types.CallbackQuery):
     order_id = call.data[13:]
 
     client_id = db.get_client_id(call.from_user.id)
-    response = requests.get(f"{api_url}/api/client/orders?client_id={client_id}").json()
+    response = requests.get(f"{api_url}/api/client/orders?client_id={client_id}", verify=False).json()
     order = None
     for r in response:
         if r['id'] == int(order_id):
@@ -41,7 +41,7 @@ async def order_detail(call: types.CallbackQuery):
 @dp.callback_query_handler(text='back-to-list')
 async def order_back(call: types.CallbackQuery):
     client_id = db.get_client_id(call.from_user.id)
-    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}").json()
+    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}", verify=False).json()
 
     ### Buyurtma bo'sh bo'lsa ###
 
@@ -78,14 +78,14 @@ async def new_count_handler(msg: types.Message, state: FSMContext):
     res = requests.put(
         url=api_url + '/api/client/order/update',
         data={"client_id": client_id, "order_id": datas['order_id'], "product_id": datas['product_id'],
-              "count": new_count})
+              "count": new_count}, verify=False)
     if res.status_code == 200:
         await msg.answer(text='✅ ' + res.json()['message'], reply_markup=main_menu)
     else:
         print(res)
 
 
-    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}").json()
+    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}", verify=False).json()
     try:
         await msg.answer(text="<b>🧾 Buyurtmalar ro'yxati</b>", reply_markup=order_board(res))
     except:
@@ -99,12 +99,12 @@ async def new_count_handler(msg: types.Message, state: FSMContext):
 @dp.callback_query_handler(text_contains='delete_order-')
 async def delete_handler(call: types.CallbackQuery):
     order_id = call.data[13:]
-    res = requests.delete(api_url + '/api/client/order/delete?order_id=' + order_id)
+    res = requests.delete(api_url + '/api/client/order/delete?order_id=' + order_id, verify=False)
     if res.status_code == 200:
         await call.answer(res.json()['message'], show_alert=True)
 
     client_id = db.get_client_id(call.from_user.id)
-    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}").json()
+    res = requests.get(f"{api_url}/api/client/orders?client_id={client_id}", verify=False).json()
     try:
         await call.message.edit_text(text="<b>🧾 Buyurtmalar ro'yxati</b>", reply_markup=order_board(res))
     except:

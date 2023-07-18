@@ -121,7 +121,7 @@ async def fullname_handler(msg: types.Message, state: FSMContext):
         "phone": phone_number,
         "chat_id" : msg.chat.id
     }
-    res = requests.post(f'http://waternet.uz/api/client/registration/{client_id}', data=data)
+    res = requests.post(f'http://waternet.uz/api/client/registration/{client_id}', data=data, verify=False)
     if res.status_code == 200:
         await msg.answer(f'Salom {fullname}! Botdan foydalanishingiz mumkin.', reply_markup=main_menu)
     else:

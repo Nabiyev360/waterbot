@@ -13,7 +13,7 @@ from states.buyingStates import BuyStates
 @dp.message_handler(text="🛍 Mahsulotlar", state='*')
 async def product_handler(msg: types.Message, state: FSMContext):
     await state.finish()
-    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(msg.from_user.id)}").json()
+    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(msg.from_user.id)}", verify=False).json()
     await msg.answer("<b>Mahsulotlar ro'yxati</b>", reply_markup=product_board(res))
 
 
@@ -21,7 +21,7 @@ async def product_handler(msg: types.Message, state: FSMContext):
 async def product_detail(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
     product_id = call.data[8:]
-    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(call.from_user.id)}").json()
+    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(call.from_user.id)}", verify=False).json()
     product = None
 
     for pr in res:
@@ -43,7 +43,7 @@ async def buy_handler(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text_contains='back-to-products')
 async def product_back(call: types.CallbackQuery):
-    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(call.from_user.id)}").json()
+    res = requests.get(f"{api_url}/api/client/products?client_id={db.get_client_id(call.from_user.id)}", verify=False).json()
     await call.message.edit_text("<b>Mahsulotlar ro'yxati</b>", reply_markup=product_board(res))
 
 
@@ -63,7 +63,7 @@ async def count_handler(msg: types.Message, state: FSMContext):
         "count": count
     }
 
-    res = requests.post(api_url+'/api/client/create/order', json=data)
+    res = requests.post(api_url+'/api/client/create/order', json=data, verify=False)
 
     if res.status_code == 422:
         await msg.answer(text=res.json()["message"], reply_markup=orders_inline)
